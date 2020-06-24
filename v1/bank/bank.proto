@@ -1,0 +1,159 @@
+// Bank related messsages.
+
+syntax = "proto3";
+
+package bank;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/bank";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+// Bank service.
+service Bank {
+  // GetAccount возвращает счёт в банке, который принадлежит переданному
+  // персонажу. Информацию о счёте персонажа можно получить только будучи
+  // владельцем указанного персонажа.
+  rpc GetAccount(GetAccountReq) returns (BankAccount);
+  // GetExchangeRates возвращает актуальный курс валют.
+  rpc GetExchangeRates(google.protobuf.Empty) returns (ExchangeRates);
+  // Convert выполняет конвертацию валют. Не имеет сайд-эффектов. Конвертация
+  // валют на клиенте используя курс валют предпочтительна.
+  rpc Convert(ConvertReq) returns (ConvertResp);
+  // Exchange выполняет обмен валют на счёте персонажа. Вызвать данный метод
+  // можно только будучи владельцем персонажа.
+  rpc Exchange(ExchangeReq) returns (BankAccount);
+  // GetSummary возвращает суммарную статистику о затратах и доходах. Принимает
+  // ID персонажа в качестве аргумента.
+  rpc GetSummary(google.protobuf.Int32Value) returns (Summary);
+  // GetHistory возвращает историю операций.
+  rpc GetHistory(HistoryReq) returns (stream HistoryRecord);
+  // PayTaxes принимает ID персонажа. Снимает деньги со счёта на карте в уплату
+  // полной суммы неоплаченных налогов.
+  rpc PayTaxes(google.protobuf.Int32Value) returns (BankAccount);
+  // GetTaxesAmount принимает ID персонажа возвращает сумму неоплаченных штрафов
+  // для персонажа с указанным ID.
+  rpc GetTaxesAmount(google.protobuf.Int32Value)
+      returns (google.protobuf.Int64Value);
+}
+
+// Currency.
+enum Currency {
+  // Специальное значение для перехвата неожиданных значений. НЕ ИСПОЛЬЗОВАТЬ.
+  UNKNOWN = 0;
+  RUB = 1;
+  // Специальная валюта "Донат"
+  DONATE = 2;
+  // Сумма на руках (рубли)
+  HANDS = 3;
+}
+
+// OperationType тип операции в банке.
+enum OperationType {
+  // TYPE_UNSPECIFIED использвуется для перехвата неустановленных значений. НЕ
+  // ИСПОЛЬЗОВАТЬ.
+  TYPE_UNSPECIFIED = 0;
+  // Доходы
+  TYPE_INCOME = 1;
+  // Затраты
+  TYPE_EXPENSES = 2;
+  // Донат
+  TYPE_DONATE = 3;
+}
+
+message HistoryReq {
+  int32 character_id = 1;
+  // Смещение выборки
+  int64 offset = 2;
+}
+
+message Summary {
+  message StatInfo {
+    // Валюта
+    Currency currency = 1;
+    // Сумма
+    int64 amount = 2;
+    // Тип операции
+    OperationType type = 3;
+  }
+
+  repeated StatInfo info = 1;
+}
+
+// Запись в истории
+message HistoryRecord {
+  // ID записи
+  int64 id = 1;
+  // Сумма
+  int64 amount = 2;
+  // Тип операции
+  OperationType type = 3;
+  // Timestamp см.
+  // https://github.com/protocolbuffers/protobuf/blob/39d730dd96c81196893734ee1e075c34567e59ae/src/google/protobuf/timestamp.proto#L127
+  google.protobuf.Timestamp ts = 4;
+  // Валюта
+  Currency currency = 5;
+  // Описание
+  string description = 6;
+}
+
+// GetAccountReq is used to find bank accounts.
+message GetAccountReq {
+  // ID персонажа
+  int32 character_id = 1;
+}
+
+// BankAccount contains completed info of the bank account.
+message BankAccount {
+  message CurrencyAmount {
+    // Currency валюта, в которой открыт счёт.
+    Currency currency = 1;
+    // Сумма на счёте в валюте currency
+    int64 amount = 2;
+  }
+
+  // ID персонажа-владельца указанного счёта в банке.
+  int32 character_owner = 1;
+  // Список счетов персонажа.
+  repeated CurrencyAmount bill = 2;
+}
+
+// ExchangeRates информация про актуальные курсы валют в банке CCDPlanet.
+message ExchangeRates {
+  message ExchangeRate {
+    // Валюта
+    Currency currency = 1;
+    // Курс валюты по отношению к рублю.
+    double equal_to_rub = 2;
+  }
+
+  // Список с курсами валют.
+  repeated ExchangeRate rate = 1;
+}
+
+// Запрос на конвертацию валют.
+message ConvertReq {
+  // Валюта ИЗ которой происходит конвертация.
+  Currency from = 1;
+  // Валюта В которую происходит конвертация.
+  Currency to = 2;
+  // Сумма в валюте "from"
+  int64 amount = 3;
+}
+
+// Ответ на запрос конвертации валют.
+message ConvertResp {
+  // Валюта, в которую выполнялась конвертация.
+  Currency currency = 1;
+  // Результат конвертации.
+  int64 amount = 2;
+}
+
+// Запрос на обмен валют.
+message ExchangeReq {
+  // ID персонажа.
+  int32 character_id = 1;
+  // Запрос обмена.
+  ConvertReq convert = 2;
+}

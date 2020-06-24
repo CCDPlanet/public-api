@@ -1,0 +1,55 @@
+// Garages related messages.
+
+syntax = "proto3";
+
+package garages;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/garages";
+
+// Гараж
+message Garage {
+  int32 id = 1;
+  GarageRoom room = 2;
+  // ID квартиры
+  int32 apartment_id = 7;
+}
+
+enum GarageRoom {
+  // UNKNOWN использвуется для перехвата неустановленных значений. НЕ
+  // ИСПОЛЬЗОВАТЬ.
+  UNKNOWN = 0;
+  GARAGE_2_CAR = 1;
+  GARAGE_6_CAR = 2;
+  GARAGE_10_CAR = 3;
+  IMP_DT1_02_CARGARAGE_A = 4;
+}
+
+// Идентификатор для конретного гаража.
+message GarageIdentifier {
+  message WithID {
+    int32 id = 1;
+  }
+
+  oneof identifier {
+    // Идентификатор по ID
+    WithID with_id = 1;
+  }
+}
+
+service Garages {
+  // Возвращает гараж с указанным идентификатором.
+  rpc GetOne(GarageIdentifier) returns (Garage);
+  // Возвращает список гаражей по фильтрам.
+  rpc GetList(GarageFilters) returns (stream Garage);
+}
+
+// Фильтры для работы с массивами данных.
+message GarageFilters {
+  // ID персонажа, который владеец гаражом.
+  int32 owner_id = 1;
+  // ID квартиры, к которой принадлежит гараж.
+  int32 apartment_id = 2;
+
+  // Список ID гаражей.
+  repeated int32 garage_ids = 3;
+}

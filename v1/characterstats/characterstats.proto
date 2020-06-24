@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package characterstats;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/characterstats";
+
+service CharacterStats {
+  // Получение статистики персонажа
+  rpc Get(GetReq) returns (Stats);
+}
+
+message Stats {
+  int64 time_played = 1;
+  int64 sessions_count = 2;
+  int64 distance_traveled_foot = 3;
+  int64 distance_traveled_vehicle = 4;
+
+  JobStats job_farmer_stats = 5;
+  JobStats job_towtruck_stats = 6;
+  JobStats job_trucker_stats = 7;
+}
+
+message JobStats {
+  int64 time_played = 1;
+  int64 times_completed = 2;
+}
+
+message GetReq {
+  int32 character_id = 1;
+}
+
+enum Job {
+  FARMER = 0;
+  TOWTRUCK = 1;
+  TRUCKER = 2;
+}

@@ -1,0 +1,43 @@
+// Accounts related messages.
+
+syntax = "proto3";
+
+package accounts;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/accounts";
+
+// Service for handling accounts actions.
+service Accounts {
+  // Возвращает аккаунт с указанным ID. Обычный пользователь может получить
+  // только аккаунт, владельцем которого он является. Группы "админ", "сервер"
+  // не имеют ограничений на получение информации о чужом аккаунте.
+  rpc FindByID(FindAccountByIDReq) returns (Account);
+  // Возвращает аккаунт с указанным именем. Обычный пользователь может получить
+  // только аккаунт, владельцем которого он является. Группы "админ", "сервер"
+  // не имеют ограничений на получение информации о чужом аккаунте.
+  rpc FindByName(FindAccountByNameReq) returns (Account);
+}
+
+// Аккаунт пользователя.
+message Account {
+  // ID аккаунта.
+  int32 id = 1;
+  // Имя аккаунта.
+  string name = 2;
+  // Почта на аккаунте.
+  string email = 3;
+  // Группа, которой принадлежит аккаунт (напр. admin, user).
+  string group = 4;
+}
+
+// Идентификатор аккаунта по имени.
+message FindAccountByNameReq {
+  // Имя аккаунта.
+  string name = 2;
+}
+
+// Идентификатор аккаунта по ID.
+message FindAccountByIDReq {
+  // ID аккаунта.
+  int32 id = 2;
+}

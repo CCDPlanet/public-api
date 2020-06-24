@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package math;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/math";
+
+message Vector3 {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}

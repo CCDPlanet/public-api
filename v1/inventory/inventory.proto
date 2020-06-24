@@ -1,0 +1,84 @@
+// Система инвентаря
+
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pb/inventory";
+
+import "google/protobuf/wrappers.proto";
+
+// Сервис для работы с инвентарём.
+service InventoryService {
+  // GetCharacterInventory принимает ID персонажа. Доступен для вызова только владельцем персонажа.
+  // Возвращает заполненные предметами слоты инвентаря персонажа.
+  rpc GetCharacterInventory(google.protobuf.Int32Value) returns (stream Slot);
+
+  // GetVehicleInventory принимает ID автомобиля. Доступен для вызова всеми. Возвращает заполненными
+  // предметами слоты инвентаря автомобиля.
+  rpc GetVehicleInventory(google.protobuf.Int32Value) returns (stream Slot);
+
+  // MoveItem перемещает предмет между слотами в инвентаре персонажа. Доступен
+  // для вызова только владельцем персонажа.
+  rpc MoveCharacterItem(CharacterMove) returns (Moved);
+}
+
+// CharacterMove перемещение между персонажами.
+message CharacterMove {
+  // character ID персонажа.
+  int32 character = 1;
+  // move назначение перемещения.
+  Move move = 2;
+}
+
+// Move сообщение для перемещения предмета между слотами.
+message Move {
+  // from слот откуда переместить предмет.
+  int32 from = 1;
+  // to слот куда переместить предмет.
+  int32 to = 2;
+  // amount количество перемещаемых предметов.
+  int32 amount = 3;
+}
+
+// Moved результат перемещения между слотами.
+message Moved {
+  // from обновлённый слот откуда было выполнено перемещение.
+  Slot from = 1;
+  // to обновлённый слот куда было выполнено перемещение.
+  Slot to = 2;
+}
+
+// Boost представляет эффект, который может быть наложен на предмет.
+message Boost {
+  // Имя эффекта.
+  string name = 1;
+  // Описание эффекта.
+  string description = 2;
+  // Уровень эффекта.
+  int32 level = 3;
+}
+
+// Item представляет предмет в инвентаре.
+message Item {
+  // id предмета.
+  string id = 1;
+  // name имя предмета.
+  string name = 2;
+  // stack_size максимальный размер стака.
+  int32 stack_size = 3;
+  // boosts список бустов (эффектов) на предмете.
+  repeated Boost boosts = 4;
+  // special_slot специальный слот, в который может надеваться носимый предмет.
+  google.protobuf.Int32Value special_slot = 5;
+}
+
+// Slot слот с предметом в инвентаре.
+message Slot {
+  // item предмет в слоте.
+  Item item = 1;
+  // slot номер слота в инвентаре.
+  int32 slot = 2;
+  // amount размер стака.
+  int32 amount = 3;
+}

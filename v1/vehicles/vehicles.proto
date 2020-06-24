@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package vehicles;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/vehicles";
+
+// Сервис для работы с транспортными средствами персонажей
+service Vehicles {
+  // Находит транспортное средство по его ID.
+  rpc FindByID(VehicleID) returns (Vehicle);
+  // Находит транспортные средства, принадлежащие персонажу с указанным ID.
+  rpc FindByOwnerID(FindByOwnerIDReq) returns (FindByOwnerIDResp);
+
+  // Возвращает здоровье транспортного средства
+  rpc GetHealth(VehicleID) returns (GetHealthResp);
+
+  // Возвращает уровень загрязненности транспортного средства
+  rpc GetDirtLevel(VehicleID) returns (GetDirtLevelResp);
+
+  // Возвращает подробный список транспортных средств, принадлежащих персонажу
+  // (для отображения списка транспортных средств)
+  rpc GetCharacterVehiclesList(GetCharacterVehiclesListReq)
+      returns (GetCharacterVehiclesListResp);
+
+  // Количество доступных слотов для спавна автомобилей одновременно.
+  rpc GetCharacterGarageParksCount(GetCharacterGarageParksCountReq)
+      returns (GetCharacterGarageParksCountResp);
+}
+
+enum EngineType {
+  TYPE_UNSPECIFIED = 0;
+  TYPE_GASOLINE = 1;
+  TYPE_DIESEL = 2;
+  TYPE_PROPANE = 3;
+  TYPE_CNG = 4;
+  TYPE_ETHANOL = 5;
+  TYPE_BIO_DIESEL = 6;
+  TYPE_ELECTRIC = 7;
+  TYPE_HYBRID = 8;
+  TYPE_HYDROGEN = 9;
+  TYPE_KEROSENE = 10;
+}
+
+enum EcoStandard {
+  STANDARD_UNSPECIFIED = 0;
+  // USA standards
+  // http://atlanticauto.com.ua/news/ekologicheskie-standarty-k-avto-primenyaemye-v-ssha/
+  STANDARD_TLEV = 1;
+  STANDARD_LEV = 2;
+  STANDARD_ULEV = 3;
+  STANDARD_SULEV = 4;
+  STANDARD_PZEV = 5;
+  STANDARD_AT_PZEV = 6;
+  STANDARD_ZEV = 7;
+
+  // Euro standards https://en.wikipedia.org/wiki/European_emission_standards
+  STANDARD_EURO_0 = 8;
+  STANDARD_EURO_1 = 9;
+  STANDARD_EURO_2 = 10;
+  STANDARD_EURO_3 = 11;
+  STANDARD_EURO_4 = 12;
+  STANDARD_EURO_5 = 13;
+  STANDARD_EURO_6 = 14;
+}
+
+message VehiclePassport {
+  string model = 1;
+  string name = 2;
+  int32 model_year = 3;
+  int32 engine_power = 4;
+  int32 engine_volume = 5;
+  EngineType engine_type = 6;
+  EcoStandard eco_standard = 7;
+  int32 mass = 8;
+  int32 inventory_slots = 9;
+}
+
+// ID транспортного средства
+message VehicleID {
+  int32 id = 1;
+}
+
+// Структура транспортного средства
+message Vehicle {
+  // ID транспортного средства
+  int32 id = 1;
+  // Персонаж, владеющий транспортным средством
+  int32 owner_id = 2;
+  // Время создания
+  int32 created_at = 3;
+  // Модель
+  string model = 4;
+  // Заблокирован ли спавн
+  bool is_locked = 5;
+}
+
+message FindByOwnerIDReq {
+  // ID персонажа, владеющего транспортным средством
+  int32 owner_id = 1;
+}
+
+message FindByOwnerIDResp {
+  // Транспортные средства, принадлежащие персонажу
+  repeated Vehicle vehicles = 1;
+}
+
+message BodyColor {
+  int32 r = 1;
+  int32 g = 2;
+  int32 b = 3;
+  int32 paint = 4;
+}
+
+message VehicleMod {
+  string mod_type = 1;
+  int32 mod_index = 2;
+}
+
+message GetHealthResp {
+  int32 health = 1;
+}
+
+message GetDirtLevelResp {
+  float dirt_level = 1;
+}
+
+message GetCharacterVehiclesListReq {
+  int32 character_id = 1;
+  int32 offset = 2;
+  int32 count = 3;
+}
+
+message VehiclesListItem {
+  int32 id = 1;
+  string model = 2;
+  string numberplate = 3;
+  BodyColor primary_color = 4;
+  bool is_locked = 5;
+}
+
+message GetCharacterVehiclesListResp {
+  repeated VehiclesListItem vehicles = 1;
+}
+
+message GetCharacterGarageParksCountReq {
+  int32 character_id = 1;
+}
+
+message GetCharacterGarageParksCountResp {
+  int32 count = 1;
+}

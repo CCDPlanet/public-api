@@ -1,0 +1,61 @@
+// House related messages
+
+syntax = "proto3";
+
+package houses;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/houses";
+
+enum ApartmentClass {
+  // UNKNOWN использвуется для перехвата неустановленных значений. НЕ
+  // ИСПОЛЬЗОВАТЬ.
+  UNKNOWN = 0;
+  A = 1;
+  B = 2;
+  C = 3;
+  D = 4;
+  S = 5;
+}
+
+message Apartment {
+  int32 id = 1;
+  ApartmentClass class = 2;
+  string room = 4;
+  int32 owner_id = 5;
+  // Стоимость
+  int64 cost = 8;
+}
+
+// Идентификатор квартиры.
+message ApartmentIdentifier {
+  message WithID {
+    int32 id = 1;
+  }
+
+  oneof identifier {
+    // Идентификатор по ID
+    WithID with_id = 1;
+  }
+}
+
+service Houses {
+  rpc GetOne(ApartmentIdentifier) returns (Apartment);
+  rpc GetList(ApartmentFilters) returns (stream Apartment);
+  // Покупка дома.
+  rpc Buy(BuyReq) returns (Apartment);
+  // Продажа дома.
+  rpc Sell(ApartmentIdentifier) returns (Apartment);
+}
+
+// Фильтры работают с массивами данных
+message ApartmentFilters {
+  // Владелец квартир
+  int32 owner_id = 1;
+  // ID квартир.
+  repeated int32 ids = 2;
+}
+
+message BuyReq {
+  ApartmentIdentifier identifier = 1;
+  int32 character_id = 2;
+}

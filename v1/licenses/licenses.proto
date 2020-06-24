@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package licenses;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/licenses";
+
+// Сервис для работы с лицензиями
+service Licenses {
+  // Выполняет поиск по ID персонажа-владельца
+  rpc FindByOwnerID(FindByOwnerIDReq) returns (FindByOwnerIDResp);
+}
+
+message License {
+  int32 owner_id = 1;
+  int32 created_at = 2;
+  string license_type = 3;
+}
+
+message FindByOwnerIDReq { int32 character_id = 1; }
+
+message FindByOwnerIDResp { repeated License licenses = 1; }

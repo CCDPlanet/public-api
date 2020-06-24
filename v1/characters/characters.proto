@@ -1,0 +1,139 @@
+// Characters service.
+
+syntax = "proto3";
+
+package characters;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/characters";
+
+// Characters service
+service Characters {
+  // Creates new character and returns it.
+  rpc Create(CreateRequest) returns (Character);
+  // FindByID finds and returns character by ID
+  rpc FindByID(CharacterID) returns (Character);
+  // FindByOwnerID finds and returns IDs of characters owned by account with
+  // given ID
+  rpc FindByOwnerID(FindByOwnerIDRequest) returns (FindByOwnerIDResponse);
+  // Updates character spawn location
+  rpc SetSpawnLocation(SetSpawnLocationRequest) returns (Empty);
+  // Returns spawn location by character ID
+  rpc GetSpawnLocation(CharacterID) returns (SpawnLocation);
+  // Updates character appearance
+  rpc SetAppearance(SetAppearanceRequest) returns (Empty);
+  // Returns character appearance by character ID
+  rpc GetAppearance(CharacterID) returns (CharacterAppearance);
+  // Updates character clothes
+  rpc SetClothes(SetClothesRequest) returns (Empty);
+  // Returns character clothes by character ID
+  rpc GetClothes(CharacterID) returns (CharacterClothes);
+  // Updates character name
+  rpc SetName(SetNameRequest) returns (Empty);
+}
+
+message CharacterID {
+  int32 id = 1;
+}
+
+// Character's person info
+message PersonInfo {
+  // First name of the character
+  string first_name = 1;
+  // Last name of the character
+  string last_name = 2;
+  // Character's bio text
+  string bio = 3;
+}
+
+/*
+  Character spawn location. Usually represents last exit location.
+  When player selects character, he spawns at this location.
+*/
+message SpawnLocation {
+  // X coordinate of spawn location
+  float x = 1;
+  // Y coordinate of spawn location
+  float y = 2;
+  // Z coordinate of spawn location
+  float z = 3;
+  // headiing of spawn location
+  float heading = 4;
+}
+
+// Create method request parameter
+message CreateRequest {
+  int32 owner_id = 1;
+  // Character's person info
+  PersonInfo person_info = 2;
+}
+
+// FindByOwnerID method request parameter
+message FindByOwnerIDRequest {
+  // Character owner ID
+  int32 owner_id = 1;
+}
+
+// FindByOwnerID method response message
+message FindByOwnerIDResponse {
+  // Characters found by this method
+  repeated Character characters = 1;
+}
+
+// SetSpawnLocation method request parameter
+message SetSpawnLocationRequest {
+  // Character ID
+  int32 character_id = 1;
+  // Character's new spawn location
+  SpawnLocation spawn_location = 2;
+}
+
+// SetSpawnLocation method response message
+message SetSpawnLocationResponse {
+  // Character's new spawn location
+  SpawnLocation spawn_location = 1;
+}
+
+message SetAppearanceRequest {
+  // Character ID
+  int32 character_id = 1;
+  // Appearance JSON
+  string appearanceJSON = 2;
+}
+
+message SetClothesRequest {
+  // Character ID
+  int32 character_id = 1;
+  // Clothes JSON
+  string clothesJSON = 2;
+}
+
+message SetNameRequest {
+  int32 character_id = 1;
+  string first_name = 2;
+  string last_name = 3;
+}
+
+message Character {
+  // Character ID
+  int32 id = 1;
+  // Character's owner account ID
+  int32 owner_id = 2;
+  // Character creation UNIX timestamp
+  int32 created_at = 3;
+  // Character last login UNIX timestamp
+  int32 last_login_at = 4;
+  // Character's person info
+  PersonInfo person_info = 5;
+}
+
+message CharacterAppearance {
+  // Character appearance data JSON
+  string appearance_json = 1;
+}
+
+message CharacterClothes {
+  // Character clothes JSON
+  string clothes_json = 1;
+}
+
+message Empty {}
