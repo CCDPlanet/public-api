@@ -1,0 +1,8 @@
+{
+	"protoc": {
+		"options": [
+			"--proto_path=v1",
+		]
+	},
+	"clang-format.style": "google"
+}

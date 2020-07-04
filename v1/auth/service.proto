@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "github.com/CCDPlanet/ccdplanet-backend/pkg/api/v1/auth";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "auth/messages.proto";
+
+// AuthService методы сервиса доступны только на сервере авторизации
+service AuthService {
+  // IntrospectMe возвращает аккаунт, под которым авторизован пользователь
+  rpc IntrospectMe(google.protobuf.Empty) returns (Account);
+
+  // GetDonate возвращает сумму доната на аккаунте пользователя
+  rpc GetDonate(google.protobuf.Empty) returns (google.protobuf.Int64Value);
+}
