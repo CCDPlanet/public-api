@@ -15,4 +15,28 @@ service AuthService {
 
   // GetDonate возвращает сумму доната на аккаунте пользователя
   rpc GetDonate(google.protobuf.Empty) returns (google.protobuf.Int64Value);
+
+  // UpdateAccount обновляет данные на аккаунте. Метод требует доступ к
+  // 'account:update'. Некоторые из возможных ошибок:
+  // Неверный формат почты: InvalidArgument, "invalid format"
+  // Неразрешимый хост почты: InvalidArgument, "unresolvable host"
+  rpc UpdateAccount(UpdateAccountInfo) returns (Account);
+
+  // UpdatePassword обновляет пароль на аккаунте. Метод требует доступ к
+  // 'account:update'. Некоторые из возможных ошибок:
+  // Прежний пароль не совпадает: InvalidArgument, "old password does not match"
+  // Новый пароль слишком слабый: InvalidArgument, "weak password"
+  rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty);
+}
+
+message UpdateAccountInfo {
+  // Новая почта
+  string email = 1;
+}
+
+message UpdatePasswordRequest {
+  // Старый пароль
+  string old = 1;
+  // Новый пароль
+  string new = 2;
 }
